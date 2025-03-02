@@ -1,0 +1,190 @@
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Slyx Hub"
+ScreenGui.Parent = CoreGui
+
+-- Arka plan bulanıklığı
+local blurEffect = Instance.new("BlurEffect")
+blurEffect.Parent = ScreenGui
+blurEffect.Size = 10  -- Bulanıklık derecesi
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 450, 0, 600)
+Frame.Position = UDim2.new(0.5, -225, 0.5, -300)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+Frame.Draggable = true
+Frame.Active = true
+Frame.BackgroundTransparency = 0.3
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 20)
+UICorner.Parent = Frame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0, 450, 0, 50)
+titleLabel.Text = "Slyx Hub"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = Frame
+
+local welcomeLabel = Instance.new("TextLabel")
+welcomeLabel.Size = UDim2.new(0, 420, 0, 40)
+welcomeLabel.Position = UDim2.new(0, 15, 0, 60)
+welcomeLabel.Text = "Hoşgeldin " .. Players.LocalPlayer.Name .. "!"
+welcomeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+welcomeLabel.TextScaled = true
+welcomeLabel.BackgroundTransparency = 1
+welcomeLabel.Font = Enum.Font.SourceSansSemibold
+welcomeLabel.Parent = Frame
+
+local PlayerNameBox = Instance.new("TextBox")
+PlayerNameBox.Size = UDim2.new(0, 420, 0, 40)
+PlayerNameBox.Position = UDim2.new(0, 15, 0, 120)
+PlayerNameBox.PlaceholderText = "Enter Player Name"
+PlayerNameBox.ClearTextOnFocus = true
+PlayerNameBox.Text = ""
+PlayerNameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerNameBox.TextScaled = true
+PlayerNameBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+PlayerNameBox.Parent = Frame
+
+-- Sürüm ve Kurucu Bilgisi
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Size = UDim2.new(0, 420, 0, 40)
+versionLabel.Position = UDim2.new(0, 15, 0, 540)
+versionLabel.Text = "Version: 1.0 | Developer: SlyxHubb"
+versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+versionLabel.TextScaled = true
+versionLabel.BackgroundTransparency = 1
+versionLabel.Font = Enum.Font.SourceSans
+versionLabel.Parent = Frame
+
+-- Notification fonksiyonu
+local function createNotification(message, soundId)
+    local notification = Instance.new("TextLabel")
+    notification.Size = UDim2.new(0, 300, 0, 50)
+    notification.Position = UDim2.new(0.5, -150, 0, 50)
+    notification.Text = message
+    notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notification.TextScaled = true
+    notification.BackgroundColor3 = Color3.fromRGB(0, 128, 0)
+    notification.Font = Enum.Font.SourceSansBold
+    notification.Parent = ScreenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = notification
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. tostring(soundId)
+    sound.Parent = notification
+    sound:Play()
+
+    task.wait(3)
+    notification:Destroy()
+end
+
+local function createButton(text, position, parent, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 420, 0, 40)
+    button.Position = position
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 15)
+    corner.Parent = button
+
+    button.MouseButton1Click:Connect(callback)
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(70, 200, 70)  -- Hover efekti
+    end)
+
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = Color3.fromRGB(50, 180, 50)  -- Hover sonrası eski renk
+    end)
+
+    return button
+end
+
+-- Mevcut butonlar
+createButton("Teleport to Player", UDim2.new(0, 15, 0, 180), Frame, function()
+    local playerName = PlayerNameBox.Text:lower()
+    if playerName == "" then
+        createNotification("Please enter a player name.", 1548304764)
+        return
+    end
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name:lower():sub(1, #playerName) == playerName or player.DisplayName:lower():sub(1, #playerName) == playerName then
+            if player == Players.LocalPlayer then
+                createNotification("You cannot teleport to yourself.", 1548304764)
+            else
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
+                createNotification("Teleported to " .. player.Name, 8747340426)
+            end
+            return
+        end
+    end
+    createNotification("Player not found", 1548304764)
+end)
+
+createButton("Teleport to Random Player", UDim2.new(0, 15, 0, 240), Frame, function()
+    local players = Players:GetPlayers()
+    local randomPlayer
+    repeat
+        randomPlayer = players[math.random(1, #players)]
+    until randomPlayer ~= Players.LocalPlayer and randomPlayer.Character
+
+    if randomPlayer then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = randomPlayer.Character.HumanoidRootPart.CFrame
+        createNotification("Teleported to " .. randomPlayer.Name, 8747340426)
+    else
+        createNotification("Random player not found", 1548304764)
+    end
+end)
+
+createButton("Infinite Yield", UDim2.new(0, 15, 0, 300), Frame, function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source', true))()
+end)
+
+createButton("BrookHaven Hub", UDim2.new(0, 15, 0, 360), Frame, function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/kigredns/SanderXV4.2.2/refs/heads/main/New.lua'))()
+end)
+
+createButton("Eecy Hub", UDim2.new(0, 15, 0, 420), Frame, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/24kEmrx1/EecyHUBV6/refs/heads/loadstring/source"))()
+end)
+
+createButton("C00l GUI", UDim2.new(0, 15, 0, 480), Frame, function()
+    loadstring(game:GetObjects("rbxassetid://8127297852")[1].Source)()
+end)
+
+-- Çarpı butonunun estetik düzenlemesi
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 40, 0, 40)
+CloseButton.Position = UDim2.new(1, -50, 0, 10)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextScaled = true
+CloseButton.Parent = Frame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 10)
+closeCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
