@@ -66,7 +66,7 @@ versionLabel.BackgroundTransparency = 1
 versionLabel.Font = Enum.Font.SourceSans
 versionLabel.Parent = Frame
 
--- Bildirim fonksiyonu
+-- Notification fonksiyonu
 local function createNotification(message, soundId)
     local notification = Instance.new("TextLabel")
     notification.Size = UDim2.new(0, 300, 0, 50)
@@ -166,15 +166,8 @@ createButton("Eecy Hub", UDim2.new(0, 15, 0, 420), Frame, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/24kEmrx1/EecyHUBV6/refs/heads/loadstring/source"))()
 end)
 
-createButton("Change Name", UDim2.new(0, 15, 0, 480), Frame, function()
-    local player = game.Players.LocalPlayer
-    local newDisplayName = "TeamSlyx"
-    
-    -- LocalPlayer'ın DisplayName'ini değiştirme
-    player.DisplayName = newDisplayName
-    
-    -- Bildirim gösterme
-    createNotification("Your DisplayName has been changed to " .. newDisplayName, 8747340426)
+createButton("C00l GUI", UDim2.new(0, 15, 0, 480), Frame, function()
+    loadstring(game:GetObjects("rbxassetid://8127297852")[1].Source)()
 end)
 
 -- Çarpı butonunun estetik düzenlemesi
